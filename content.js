@@ -36,7 +36,7 @@
     const detailButtons = querySelectorAllDeep('input[type="button"].detail[title="انجام ارزشیابی"]', doc)
       .filter(btn => btn.getAttribute("onclick") === "OnDetailClick(this);");
     detailButtons.forEach(btn => {
-      // Intentionally left blank for future processing
+      btn.style.outline = "3px solid red";
     });
     console.log(`[SipadEvaluationSkipper] Found ${detailButtons.length} detail buttons`);
     if (detailButtons.length > 0) {
@@ -46,6 +46,7 @@
     // Find continue button
     const continueButtons = querySelectorAllDeep('input[type="button"]#btnContinue.button[name="btnContinue"][value="ثبت"][onclick="onNewClick()"]', doc);
     if (continueButtons.length > 0) {
+      continueButtons[0].style.outline = "3px solid blue";
       console.log("[SipadEvaluationSkipper] Continue button found and highlighted");
     } else {
       console.log("[SipadEvaluationSkipper] Continue button NOT found");
@@ -62,6 +63,7 @@
         const x = parseInt(m[1], 10);
         const y = parseInt(m[2], 10);
         coords.push({ x, y, input });
+        input.style.outline = "2px solid green";
       }
     });
 
@@ -111,11 +113,11 @@
   // Load-time processing
   if (document.readyState === "complete") {
     console.log("[SipadEvaluationSkipper] Document readyState complete, processing now...");
-    window.setInterval(processAllFrames, 300);
+    processAllFrames();
   } else {
     window.addEventListener("load", () => {
       console.log("[SipadEvaluationSkipper] Window load event fired, processing now...");
-      window.setInterval(processAllFrames, 300);
+      processAllFrames();
     });
   }
 
@@ -124,7 +126,7 @@
    */
   const observer = new MutationObserver((mutations) => {
     console.log("[SipadEvaluationSkipper] DOM mutations detected, reprocessing frames...");
-    window.setInterval(processAllFrames, 300);
+    processAllFrames();
   });
 
   observer.observe(document.body, {
