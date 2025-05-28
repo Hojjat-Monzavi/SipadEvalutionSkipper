@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "همه استادا خیلی خوبن",
+  "version": "1.4.0.2",
+  "description": "اکستنشنی که در 1 دقیقه همه اساتید رو خیلی خوب نمره میده",
+  "permissions": ["scripting", "activeTab"],
+  "action": {
+    "default_title": "کافیه کلیک کنی تا پرشنامه پر بشه"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+    "content_scripts": [
+    {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"],
+        "run_at": "document_idle",
+        "all_frames": true
+    }
+    ]
+}
