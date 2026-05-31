@@ -79,9 +79,10 @@
       radioArray[x][y] = input;
     });
 
-    // Select highest value in each column (row 4)
+    // Select Randomly
     for (let i = 0; i < radioArray[0].length; i++) {
-      radioArray[4][i].checked = true;
+      const randomRow = Math.floor(Math.random() * 5); // rows 0-4
+      radioArray[randomRow][i].checked = true;
     }
 
     console.log(`[SipadEvaluationSkipper] Constructed radio 2D array with dimensions [${maxX + 1}][${maxY + 1}]`);

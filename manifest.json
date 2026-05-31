@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "همه استادا خیلی خوبن",
-  "version": "1.4.0.2",
-  "description": "اکستنشنی که در 1 دقیقه همه اساتید رو خیلی خوب نمره میده",
+  "version": "1.4.0.5",
+  "description": "اکستنشنی که در 1 دقیقه ارزشیابی اساتید رو به صورت تصادفی پاسخ میده",
   "permissions": ["scripting", "activeTab"],
   "action": {
     "default_title": "کافیه کلیک کنی تا پرشنامه پر بشه"
