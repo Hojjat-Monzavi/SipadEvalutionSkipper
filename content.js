@@ -21,6 +21,22 @@
   }
 
   /**
+   * Helper function to generate normally distributed numbers (Box-Muller transform)
+   * - Clicks specific evaluation buttons on the first page of sipad.
+   * - Selects specific radio buttons in a 2D format on the second page of sipad.
+   * - clicks continue button.
+   * @param {number} mean - mean of the PDF
+   * @param {number} stdDev - standard deviation to apply
+   */
+  function getNormalRandom(mean, stdDev) {
+    let u = 1 - Math.random();
+    let v = Math.random();
+    let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    return z * stdDev + mean;
+  }
+
+
+  /**
    * Processes the given document or frame:
    * - Clicks specific evaluation buttons on the first page of sipad.
    * - Selects specific radio buttons in a 2D format on the second page of sipad.
@@ -58,12 +74,41 @@
 
     const coords = [];
     radios.forEach(input => {
-      const m = input.id.match(/^rb(\d)(\d)$/);
-      if (m) {
-        const x = parseInt(m[1], 10);
-        const y = parseInt(m[2], 10);
-        coords.push({ x, y, input });
-        input.style.outline = "2px solid green";
+      try {
+        // Ensure the input has the expected 'rb' id and 'foobar' name prefixes
+        if (input.id && input.id.startsWith("rb") && input.name && input.name.startsWith("foobar")) {
+          console.log(`[SipadEvaluationSkipper] Processing input element ID: ${input.id}`);
+
+          // Extract strings
+          const yStr = input.name.replace("foobar", "");
+          const xyStr = input.id.replace("rb", "");
+
+          // Verify the id string ends with the y string
+          if (xyStr.endsWith(yStr)) {
+            const xStr = xyStr.slice(0, -yStr.length);
+
+            const x = parseInt(xStr, 10);
+            const y = parseInt(yStr, 10);
+
+            // Check that we successfully parsed valid numbers
+            if (!isNaN(x) && !isNaN(y)) {
+              coords.push({ x, y, input });
+              input.style.outline = "2px solid green";
+              console.log(`[SipadEvaluationSkipper] Successfully mapped coordinates -> x: ${x}, y: ${y}`);
+            } else {
+              console.warn(`[SipadEvaluationSkipper] Failed to parse integers. xStr: "${xStr}", yStr: "${yStr}"`, input);
+            }
+          } else {
+            console.warn(`[SipadEvaluationSkipper] Mismatch: ID string "${xyStr}" does not end with Name string "${yStr}". Skipping.`, input);
+          }
+        }
+      } catch (e) {
+        // Catch any unexpected DOM errors, specifically cross-origin issues
+        if (e.name === "SecurityError") {
+          console.warn("[SipadEvaluationSkipper] Cannot access element/iframe due to cross-origin policy:", input, e);
+        } else {
+          console.error("[SipadEvaluationSkipper] An unexpected error occurred while processing input:", input, e);
+        }
       }
     });
 
@@ -80,8 +125,22 @@
     });
 
     // Select Randomly
+    const numChoices = radioArray.length;
+    const maxRowIndex = numChoices - 1;
+
+    const targetMean = maxRowIndex * 0.75; //mean = 75% (15/20)
+
+    const stdDeviation = maxRowIndex * 0.2; // cv=0.2
+
+    // Select using Normal Distribution
     for (let i = 0; i < radioArray[0].length; i++) {
-      const randomRow = Math.floor(Math.random() * 5); // rows 0-4
+
+      let rawValue = getNormalRandom(targetMean, stdDeviation);
+      let randomRow = Math.round(rawValue);
+
+      // Clamp between 0 and the dynamic maxRowIndex
+      randomRow = Math.max(0, Math.min(maxRowIndex, randomRow));
+
       radioArray[randomRow][i].checked = true;
     }
 
